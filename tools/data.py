@@ -4,7 +4,7 @@ from nltk import ngrams
 
 negative_vocab, positive_vocab = retrieve_attribute_vocabulary()
 
-def get_content(sentence: List[str], attribute: str):
+def get_content(sentence: List[str], attribute: str) -> List[str]:
     """
     Splits a sentence into its content (and attribute markers)
     :param sentence: A list of strings representing words in the original sentence
@@ -39,7 +39,3 @@ def remove_markers(sentence: List[str], attr_vocab: Dict[str, float]) -> Tuple[L
             attribute_markers.append(marker)
             content = content.replace(marker, "")
     return content.split(), attribute_markers
-
-
-sentence = "The food was amazing"
-print(get_content(sentence.split(), "positive"))
