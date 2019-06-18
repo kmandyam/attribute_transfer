@@ -9,6 +9,8 @@ from allennlp.data.tokenizers import Token
 from allennlp.data import Instance
 from allennlp.data.fields import TextField, LabelField
 
+from tools.data import get_content
+
 class ATDatasetReader(DatasetReader):
     """
     DatasetReader for attribute transfer data, one sentence per line, like
@@ -40,13 +42,9 @@ class ATDatasetReader(DatasetReader):
         attribute = "negative" if "0" in file else "positive"
         with open(file_path) as f:
             for line in f:
-                sentence = line.strip()
+                sentence = line.strip().split()
 
                 # TODO: need a function that splits a sentence into content (and inevitably, attribute markers)
-                content = get_content(sentence)
-
-
-
-
-                sentence, tags = zip(*(pair.split("###") for pair in pairs))
-                yield self.text_to_instance([Token(word) for word in sentence], tags)
+                content = get_content(sentence, attribute)
+                yield self.text_to_instance([Token(word) for word in content], attribute,
+                                            [Token(word) for word in sentence])
