@@ -1,0 +1,52 @@
+import os
+
+from typing import Iterator, List, Dict
+from allennlp.data.dataset_readers import DatasetReader
+
+from allennlp.data.token_indexers import TokenIndexer, SingleIdTokenIndexer
+from allennlp.data.tokenizers import Token
+
+from allennlp.data import Instance
+from allennlp.data.fields import TextField, LabelField
+
+class ATDatasetReader(DatasetReader):
+    """
+    DatasetReader for attribute transfer data, one sentence per line, like
+
+        Line: The apple juice was amazing
+        Content: The apple juice was
+        Attribute: Positive
+    """
+
+    def __init__(self, token_indexers: Dict[str, TokenIndexer] = None) -> None:
+        super().__init__(lazy=False)
+        self.token_indexers = token_indexers or {"tokens": SingleIdTokenIndexer()}
+
+    def text_to_instance(self, content: List[Token], attribute: str,
+                         target: List[Token] = None) -> Instance:
+
+        content_field = TextField(content, self.token_indexers)
+        attribute_field = LabelField(attribute)
+        fields = {"content": content_field, "attribute": attribute_field}
+
+        if target:
+            target_field = TextField(target, self.token_indexers)
+            fields["target"] = target_field
+
+        return Instance(fields)
+
+    def _read(self, file_path: str) -> Iterator[Instance]:
+        path, file = os.path.split(file_path)
+        attribute = "negative" if "0" in file else "positive"
+        with open(file_path) as f:
+            for line in f:
+                sentence = line.strip()
+
+                # TODO: need a function that splits a sentence into content (and inevitably, attribute markers)
+                content = get_content(sentence)
+
+
+
+
+                sentence, tags = zip(*(pair.split("###") for pair in pairs))
+                yield self.text_to_instance([Token(word) for word in sentence], tags)
