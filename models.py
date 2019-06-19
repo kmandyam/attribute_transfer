@@ -82,7 +82,7 @@ class DeleteOnly(Model):
         if target:
             targets = target['tokens']
             target_sequence_length = targets.size()[1]
-            num_decoding_steps = target_sequence_length - 1
+            num_decoding_steps = target_sequence_length
         else:
             num_decoding_steps = self.max_decoding_steps
 
@@ -146,11 +146,12 @@ class DeleteOnly(Model):
                  targets: torch.LongTensor,
                  target_mask: torch.LongTensor) -> torch.LongTensor:
 
-        relevant_targets = targets[:, 1:].contiguous()  # (batch_size, num_decoding_steps)
+        # import pdb; pdb.set_trace()
+        # relevant_targets = targets[:, 1:].contiguous()  # (batch_size, num_decoding_steps)
+        #
+        # relevant_mask = target_mask[:, 1:].contiguous()  # (batch_size, num_decoding_steps)
 
-        relevant_mask = target_mask[:, 1:].contiguous()  # (batch_size, num_decoding_steps)
-
-        loss = sequence_cross_entropy_with_logits(logits, relevant_targets, relevant_mask)
+        loss = sequence_cross_entropy_with_logits(logits, targets, target_mask)
 
         return loss
 
