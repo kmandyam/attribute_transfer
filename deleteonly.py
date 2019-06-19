@@ -1,5 +1,7 @@
 import os
 
+import torch
+
 from typing import Iterator, List, Dict
 from allennlp.data.dataset_readers import DatasetReader
 
@@ -11,7 +13,14 @@ from allennlp.data.fields import TextField, LabelField
 
 from tools.data import get_content
 
-class ATDatasetReader(DatasetReader):
+from allennlp.data.vocabulary import Vocabulary
+
+from allennlp.modules.text_field_embedders import BasicTextFieldEmbedder
+from allennlp.modules.token_embedders import Embedding
+
+torch.manual_seed(1)
+
+class DeleteOnlyDatasetReader(DatasetReader):
     """
     DatasetReader for attribute transfer data, one sentence per line, like
         Line: The apple juice was amazing
@@ -46,10 +55,29 @@ class ATDatasetReader(DatasetReader):
                                             [Token(word) for word in sentence])
 
 
-reader = ATDatasetReader()
+reader = DeleteOnlyDatasetReader()
 
 train_neg_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.train.0')
 train_pos_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.train.1')
 
-negative_train = reader.read(train_neg_file)
-positive_train = reader.read(train_pos_file)
+validate_neg_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.dev.0')
+validate_pos_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.dev.1')
+
+negative_train_dataset = reader.read(train_neg_file)
+positive_train_dataset = reader.read(train_pos_file)
+
+negative_validation_datset = reader.read(validate_neg_file)
+positive_validation_datset = reader.read(validate_pos_file)
+
+train_data = negative_train_dataset + positive_train_dataset
+validation_data = negative_validation_datset + positive_validation_datset
+
+vocab = Vocabulary.from_instances(train_data + validation_data)
+
+EMBEDDING_DIM = 128
+HIDDEN_DIM = 512
+
+# TODO: consider using pretrained word embeddings
+token_embedding = Embedding(num_embeddings=vocab.get_vocab_size('tokens'),
+                            embedding_dim=EMBEDDING_DIM)
+word_embeddings = BasicTextFieldEmbedder({"tokens": token_embedding})
