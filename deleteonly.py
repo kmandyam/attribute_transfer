@@ -1,6 +1,7 @@
 import os
 
 import torch
+import torch.optim as optim
 
 from typing import Iterator, List, Dict
 from allennlp.data.dataset_readers import DatasetReader
@@ -17,6 +18,13 @@ from allennlp.data.vocabulary import Vocabulary
 
 from allennlp.modules.text_field_embedders import BasicTextFieldEmbedder
 from allennlp.modules.token_embedders import Embedding
+
+from models import DeleteOnly
+
+from allennlp.modules.seq2seq_encoders import PytorchSeq2SeqWrapper
+
+from allennlp.data.iterators import BucketIterator
+from allennlp.training.trainer import Trainer
 
 torch.manual_seed(1)
 
@@ -80,4 +88,31 @@ HIDDEN_DIM = 512
 # TODO: consider using pretrained word embeddings
 token_embedding = Embedding(num_embeddings=vocab.get_vocab_size('tokens'),
                             embedding_dim=EMBEDDING_DIM)
-word_embeddings = BasicTextFieldEmbedder({"tokens": token_embedding})
+attribute_embedder = Embedding(num_embeddings=2, embedding_dim=EMBEDDING_DIM)
+word_embedder = BasicTextFieldEmbedder({"tokens": token_embedding})
+
+lstm = PytorchSeq2SeqWrapper(torch.nn.LSTM(EMBEDDING_DIM, HIDDEN_DIM, batch_first=True))
+model = DeleteOnly(word_embedder, attribute_embedder, lstm, vocab)
+
+if torch.cuda.is_available():
+    cuda_device = 0
+    model = model.cuda(cuda_device)
+else:
+    cuda_device = -1
+
+optimizer = optim.SGD(model.parameters(), lr=0.1)
+iterator = BucketIterator(batch_size=2, sorting_keys=[("content", "num_tokens")])
+iterator.index_with(vocab)
+
+# TODO: write a predictor
+
+# TODO: should probably provide a patience
+trainer = Trainer(model=model,
+                  optimizer=optimizer,
+                  iterator=iterator,
+                  train_dataset=train_data,
+                  validation_dataset=validation_data,
+                  num_epochs=1,
+                  cuda_device=cuda_device)
+
+trainer.train()
