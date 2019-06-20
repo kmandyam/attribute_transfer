@@ -145,14 +145,7 @@ class DeleteOnly(Model):
                  logits: torch.LongTensor,
                  targets: torch.LongTensor,
                  target_mask: torch.LongTensor) -> torch.LongTensor:
-
-        # import pdb; pdb.set_trace()
-        # relevant_targets = targets[:, 1:].contiguous()  # (batch_size, num_decoding_steps)
-        #
-        # relevant_mask = target_mask[:, 1:].contiguous()  # (batch_size, num_decoding_steps)
-
         loss = sequence_cross_entropy_with_logits(logits, targets, target_mask)
-
         return loss
 
     # TODO: override the decode function

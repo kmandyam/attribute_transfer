@@ -59,6 +59,8 @@ class DeleteOnlyDatasetReader(DatasetReader):
             for line in f:
                 sentence = line.strip().split()
                 content = get_content(sentence, attribute)
+                if not content:
+                    continue
                 yield self.text_to_instance([Token(word) for word in content], attribute,
                                             [Token(word) for word in sentence])
 
