@@ -58,7 +58,10 @@ class DeleteOnlyDatasetReader(DatasetReader):
         with open(file_path) as f:
             for line in f:
                 sentence = line.strip().split()
+                # TODO: introduce start and end tokens to the data
                 content = get_content(sentence, attribute)
+                if not content:
+                    continue
                 yield self.text_to_instance([Token(word) for word in content], attribute,
                                             [Token(word) for word in sentence])
 
