@@ -26,6 +26,8 @@ from allennlp.modules.seq2seq_encoders import PytorchSeq2SeqWrapper
 from allennlp.data.iterators import BucketIterator
 from allennlp.training.trainer import Trainer
 
+from allennlp.common.util import START_SYMBOL, END_SYMBOL
+
 torch.manual_seed(1)
 
 class DeleteOnlyDatasetReader(DatasetReader):
@@ -60,8 +62,13 @@ class DeleteOnlyDatasetReader(DatasetReader):
                 sentence = line.strip().split()
                 # TODO: introduce start and end tokens to the data
                 content = get_content(sentence, attribute)
-                if not content:
-                    continue
+
+                # guaranteeing that we don't have empty inputs
+                content.insert(0, START_SYMBOL)
+                content.append(END_SYMBOL)
+
+                sentence.insert(0, START_SYMBOL)
+                sentence.append(END_SYMBOL)
                 yield self.text_to_instance([Token(word) for word in content], attribute,
                                             [Token(word) for word in sentence])
 
@@ -104,7 +111,7 @@ else:
     cuda_device = -1
 
 optimizer = optim.SGD(model.parameters(), lr=0.1)
-iterator = BucketIterator(batch_size=128, sorting_keys=[("content", "num_tokens")])
+iterator = BucketIterator(batch_size=2, sorting_keys=[("content", "num_tokens")])
 iterator.index_with(vocab)
 
 # TODO: write a predictor

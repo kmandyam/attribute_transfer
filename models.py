@@ -82,47 +82,46 @@ class DeleteOnly(Model):
         if target:
             targets = target['tokens']
             target_sequence_length = targets.size()[1]
-            num_decoding_steps = target_sequence_length
+            num_decoding_steps = target_sequence_length - 1
         else:
             num_decoding_steps = self.max_decoding_steps
 
         # produces tensor: (batch size x hidden dim + embedding dim)
         decoder_hidden = encoder_output
 
-        # produces tensor: (batch size x hidden dim)
+        # produces tensor: (batch size x hidden dim + embedding dim)
         decoder_context = content_encoding.new_zeros(batch_size, self.decoder_output_dim)
 
+        # initializing lists to keep track of decoding
         last_predictions = None
         step_logits = []
         step_probabilities = []
         step_predictions = []
 
-        # TODO: a problem: the mask doesn't match the encoder output
-
         for timestep in range(num_decoding_steps):
             if timestep == 0:
                 # For the first timestep, when we do not have targets, we input start symbols.
+                # produces tensor: (batch size)
                 input_choices = content_mask.new_full((batch_size,), fill_value=self.start_index)
             else:
+                # produces tensor: (batch size)
                 input_choices = last_predictions
 
             # produces tensor: (batch size x embedding dim)
             decoder_input = self.target_embedder(input_choices)
 
+            # produces tensors: (batch size x hidden dim + embedding dim)
             decoder_hidden, decoder_context = self.decoder_cell(decoder_input, (decoder_hidden, decoder_context))
 
+            # produces tensor: (batch size x vocab size)
             output_projections = self.output_projection_layer(decoder_hidden)
-
             step_logits.append(output_projections.unsqueeze(1))
 
             class_probabilities = F.softmax(output_projections, dim=-1)
-
             _, predicted_classes = torch.max(class_probabilities, 1)
 
             step_probabilities.append(class_probabilities.unsqueeze(1))
-
             last_predictions = predicted_classes
-
             step_predictions.append(last_predictions.unsqueeze(1))
 
         logits = torch.cat(step_logits, 1)
@@ -145,7 +144,25 @@ class DeleteOnly(Model):
                  logits: torch.LongTensor,
                  targets: torch.LongTensor,
                  target_mask: torch.LongTensor) -> torch.LongTensor:
-        loss = sequence_cross_entropy_with_logits(logits, targets, target_mask)
+        """
+        Documentation taken from Allennlp
+        This method aligns the inputs appropriately to compute the loss.
+
+        The targets should be shifted by one timestep for appropriate comparison.
+        Consider a single example where the target has 3 words, and
+        padding is to 7 tokens.
+            The complete sequence would correspond to <S> w1  w2  w3  <E> <P> <P>
+            and the mask would be                     1   1   1   1   1   0   0
+            and let the logits be                     l1  l2  l3  l4  l5  l6
+        We actually need to compare:
+            the sequence           w1  w2  w3  <E> <P> <P>
+            with masks             1   1   1   1   0   0
+            against                l1  l2  l3  l4  l5  l6
+            (where the input was)  <S> w1  w2  w3  <E> <P>
+        """
+        relevant_targets = targets[:, 1:].contiguous()
+        relevant_mask = target_mask[:, 1:].contiguous()
+        loss = sequence_cross_entropy_with_logits(logits, relevant_targets, relevant_mask)
         return loss
 
     # TODO: override the decode function
