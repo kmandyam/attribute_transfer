@@ -54,7 +54,7 @@ class DeleteOnlyDatasetReader(DatasetReader):
 
     def _read(self, file_path: str) -> Iterator[Instance]:
         path, file = os.path.split(file_path)
-        attribute = "negative" if "0" in file else "positive"
+        attribute = "negative" if "neg" in file else "positive"
         with open(file_path) as f:
             for line in f:
                 sentence = line.strip().split()
@@ -104,7 +104,7 @@ else:
     cuda_device = -1
 
 optimizer = optim.SGD(model.parameters(), lr=0.1)
-iterator = BucketIterator(batch_size=2, sorting_keys=[("content", "num_tokens")])
+iterator = BucketIterator(batch_size=128, sorting_keys=[("content", "num_tokens")])
 iterator.index_with(vocab)
 
 # TODO: write a predictor
