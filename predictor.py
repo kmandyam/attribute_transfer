@@ -1,16 +1,15 @@
-from allennlp.common.util import JsonDict
-from allennlp.data import Instance
-from allennlp.predictors.predictor import Predictor
+from overrides import overrides
 
+from allennlp.predictors.predictor import Predictor
 from allennlp.models import Model
 from allennlp.data import DatasetReader, Instance
+from allennlp.data.tokenizers import Token
+
+from allennlp.common.util import JsonDict
 
 from tools.data import get_content
 
 from allennlp.common.util import START_SYMBOL, END_SYMBOL
-from allennlp.data.tokenizers import Token
-
-from overrides import overrides
 
 class DeleteOnlyPredictor(Predictor):
     """

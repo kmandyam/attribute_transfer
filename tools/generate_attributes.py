@@ -23,16 +23,20 @@ class SalienceCalculator(object):
 
     def salience(self, feature, attribute='negative', lmbda=0.5):
         assert attribute in ['negative', 'positive']
+
+        # get counts of ngram in src vocab
         if feature not in self.src_vocab:
             src_count = 0.0
         else:
             src_count = self.src_counts[self.src_vocab[feature]]
 
+        # get counts of ngram in target vocab
         if feature not in self.tgt_vocab:
             tgt_count = 0.0
         else:
             tgt_count = self.tgt_counts[self.tgt_vocab[feature]]
 
+        # calculate salience
         if attribute == 'negative':
             return (src_count + lmbda) / (tgt_count + lmbda)
         else:
@@ -79,6 +83,7 @@ def calculate_attribute_markers(corpus: List[str], sc: SalienceCalculator,
                     attribute_vocab_file.write(gram + "\t" + str(negative_salience) +
                                                "\t" + str(positive_salience) + "\n")
 
+# a function to tokenize text into ngrams
 def tokenize(text: str) -> List[str]:
     text = text.split()
     grams = []
@@ -87,6 +92,7 @@ def tokenize(text: str) -> List[str]:
         grams.extend(i_grams)
     return grams
 
+# removing less common words with unking
 def unk_corpus(sentences: List[List[str]], vocab: Set) -> List[str]:
     corpus = []
     for line in sentences:

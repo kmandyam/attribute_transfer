@@ -1,18 +1,19 @@
-from allennlp.models import Model
-from typing import Dict
-
 import torch
 import torch.nn.functional as F
 
-from allennlp.modules.text_field_embedders import TextFieldEmbedder
-from allennlp.modules.seq2seq_encoders import Seq2SeqEncoder
-from allennlp.nn.util import get_text_field_mask, get_final_encoder_states, sequence_cross_entropy_with_logits
+from typing import Dict
 
 from allennlp.data.vocabulary import Vocabulary
 from allennlp.modules.token_embedders import Embedding
+from allennlp.modules.text_field_embedders import TextFieldEmbedder
+
+from allennlp.models import Model
 
 from torch.nn.modules.rnn import LSTMCell
 from torch.nn.modules.linear import Linear
+from allennlp.modules.seq2seq_encoders import Seq2SeqEncoder
+
+from allennlp.nn.util import get_text_field_mask, get_final_encoder_states, sequence_cross_entropy_with_logits
 
 from allennlp.common.util import START_SYMBOL, END_SYMBOL
 
@@ -63,6 +64,7 @@ class DeleteOnly(Model):
         # produces tensor: (batch size x sequence length x embedding dim)
         content_embedding = self.word_embedder(content)
 
+        # TODO: is this a learned embedding or a fixed one?
         # produces tensor: (batch size x embedding dim)
         attr_embedding = self.attribute_embedder(attribute)
 
