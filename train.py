@@ -28,6 +28,8 @@ from allennlp.training.trainer import Trainer
 
 from allennlp.common.util import START_SYMBOL, END_SYMBOL
 
+from predictor import DeleteOnlyPredictor
+
 torch.manual_seed(1)
 
 class DeleteOnlyDatasetReader(DatasetReader):
@@ -60,7 +62,7 @@ class DeleteOnlyDatasetReader(DatasetReader):
         with open(file_path) as f:
             for line in f:
                 sentence = line.strip().split()
-                # TODO: introduce start and end tokens to the data
+
                 content = get_content(sentence, attribute)
 
                 # guaranteeing that we don't have empty inputs
@@ -126,3 +128,8 @@ trainer = Trainer(model=model,
                   cuda_device=cuda_device)
 
 trainer.train()
+
+predictor = DeleteOnlyPredictor(model, reader)
+
+predictions = predictor.predict("This bubble tea is amazing", "negative")['predictions']
+print([model.vocab.get_token_from_index(i, 'tokens') for i in predictions])
