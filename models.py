@@ -45,6 +45,8 @@ class DeleteOnly(Model):
         self.decoder_cell = LSTMCell(self.decoder_input_dim, self.decoder_output_dim)
         self.output_projection_layer = Linear(self.decoder_output_dim, self.num_classes)
 
+        self.scheduled_sampling_ratio = 0.5
+
     def forward(self,
                 content: Dict[str, torch.Tensor],
                 attribute: torch.Tensor,
@@ -101,13 +103,16 @@ class DeleteOnly(Model):
         step_predictions = []
 
         for timestep in range(num_decoding_steps):
-            if timestep == 0:
-                # For the first timestep, when we do not have targets, we input start symbols.
-                # produces tensor: (batch size)
-                input_choices = content_mask.new_full((batch_size,), fill_value=self.start_index)
+            if self.training and torch.rand(1).item() >= self.scheduled_sampling_ratio:
+                input_choices = targets[:, timestep]
             else:
-                # produces tensor: (batch size)
-                input_choices = last_predictions
+                if timestep == 0:
+                    # For the first timestep, when we do not have targets, we input start symbols.
+                    # produces tensor: (batch size)
+                    input_choices = content_mask.new_full((batch_size,), fill_value=self.start_index)
+                else:
+                    # produces tensor: (batch size)
+                    input_choices = last_predictions
 
             # produces tensor: (batch size x embedding dim)
             decoder_input = self.target_embedder(input_choices)

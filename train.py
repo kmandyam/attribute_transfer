@@ -116,8 +116,6 @@ optimizer = optim.SGD(model.parameters(), lr=0.1)
 iterator = BucketIterator(batch_size=2, sorting_keys=[("content", "num_tokens")])
 iterator.index_with(vocab)
 
-# TODO: write a predictor
-
 # TODO: should probably provide a patience
 trainer = Trainer(model=model,
                   optimizer=optimizer,
