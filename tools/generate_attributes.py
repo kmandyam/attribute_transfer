@@ -39,8 +39,8 @@ class SalienceCalculator(object):
             return (tgt_count + lmbda) / (src_count + lmbda)
 
 def generate_attribute_vocabulary() -> None:
-    negative_file = os.path.join(os.path.dirname(__file__), '../data/sentiment.train.0')
-    positive_file = os.path.join(os.path.dirname(__file__), '../data/sentiment.train.1')
+    negative_file = os.path.join(os.path.dirname(__file__), '../data/sentiment.train.neg')
+    positive_file = os.path.join(os.path.dirname(__file__), '../data/sentiment.train.pos')
 
     vocab_file = os.path.join(os.path.dirname(__file__), '../data/vocab')
 

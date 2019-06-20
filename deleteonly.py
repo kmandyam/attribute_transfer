@@ -68,11 +68,11 @@ class DeleteOnlyDatasetReader(DatasetReader):
 
 reader = DeleteOnlyDatasetReader()
 
-train_neg_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.train.0')
-train_pos_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.train.1')
+train_neg_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.train.neg')
+train_pos_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.train.pos')
 
-validate_neg_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.dev.0')
-validate_pos_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.dev.1')
+validate_neg_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.dev.neg')
+validate_pos_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.dev.pos')
 
 negative_train_dataset = reader.read(train_neg_file)
 positive_train_dataset = reader.read(train_pos_file)
