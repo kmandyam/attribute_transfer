@@ -1,4 +1,5 @@
 import torch
+import numpy
 import torch.nn.functional as F
 
 from typing import Dict
@@ -66,7 +67,6 @@ class DeleteOnly(Model):
         # produces tensor: (batch size x sequence length x embedding dim)
         content_embedding = self.word_embedder(content)
 
-        # TODO: is this a learned embedding or a fixed one?
         # produces tensor: (batch size x embedding dim)
         attr_embedding = self.attribute_embedder(attribute)
 
@@ -94,6 +94,7 @@ class DeleteOnly(Model):
         decoder_hidden = encoder_output
 
         # produces tensor: (batch size x hidden dim + embedding dim)
+        # TODO: could be a problem???
         decoder_context = content_encoding.new_zeros(batch_size, self.decoder_output_dim)
 
         # initializing lists to keep track of decoding
@@ -172,4 +173,22 @@ class DeleteOnly(Model):
         loss = sequence_cross_entropy_with_logits(logits, relevant_targets, relevant_mask)
         return loss
 
-    # TODO: override the decode function
+    def decode(self, output_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+        """
+        This method trims the output predictions to the first end symbol, replaces indices with
+        corresponding tokens, and adds a field called ``predicted_tokens`` to the ``output_dict``.
+        """
+        predicted_indices = output_dict["predictions"]
+        if not isinstance(predicted_indices, numpy.ndarray):
+            predicted_indices = predicted_indices.detach().cpu().numpy()
+        all_predicted_tokens = []
+        for indices in predicted_indices:
+            indices = list(indices)
+            # Collect indices till the first end_symbol
+            if self._end_index in indices:
+                indices = indices[:indices.index(self._end_index)]
+            predicted_tokens = [self.vocab.get_token_from_index(x, namespace=self._target_namespace)
+                                for x in indices]
+            all_predicted_tokens.append(predicted_tokens)
+        output_dict["predicted_tokens"] = all_predicted_tokens
+        return output_dict
