@@ -107,7 +107,7 @@ lstm = PytorchSeq2SeqWrapper(torch.nn.LSTM(EMBEDDING_DIM, HIDDEN_DIM, batch_firs
 model = DeleteOnly(word_embedder, attribute_embedder, lstm, vocab)
 
 if torch.cuda.is_available():
-    cuda_device = 0
+    cuda_device = 1
     model = model.cuda(cuda_device)
 else:
     cuda_device = -1
@@ -131,3 +131,15 @@ predictor = DeleteOnlyPredictor(model, reader)
 
 predictions = predictor.predict("This bubble tea is amazing", "negative")['predictions']
 print([model.vocab.get_token_from_index(i, 'tokens') for i in predictions])
+
+with open("/tmp/model.th", 'wb') as f:
+    torch.save(model.state_dict(), f)
+vocab.save_to_files("/tmp/vocabulary")
+
+# And here's how to reload the model.
+# vocab2 = Vocabulary.from_files("/tmp/vocabulary")
+# model2 = DeleteOnly(word_embedder, attribute_embedder, lstm, vocab2)
+# with open("/tmp/model.th", 'rb') as f:
+#     model2.load_state_dict(torch.load(f))
+# if cuda_device > -1:
+#     model2.cuda(cuda_device)
