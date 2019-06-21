@@ -112,7 +112,7 @@ if torch.cuda.is_available():
 else:
     cuda_device = -1
 
-optimizer = optim.SGD(model.parameters(), lr=0.1)
+optimizer = optim.Adadelta(model.parameters())
 iterator = BucketIterator(batch_size=2, sorting_keys=[("content", "num_tokens")])
 iterator.index_with(vocab)
 
