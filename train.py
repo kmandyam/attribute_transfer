@@ -122,6 +122,7 @@ trainer = Trainer(model=model,
                   iterator=iterator,
                   train_dataset=train_data,
                   validation_dataset=validation_data,
+                  patience=10,
                   num_epochs=1,
                   cuda_device=cuda_device)
 

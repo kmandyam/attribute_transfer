@@ -17,6 +17,7 @@ from allennlp.modules.seq2seq_encoders import Seq2SeqEncoder
 from allennlp.nn.util import get_text_field_mask, get_final_encoder_states, sequence_cross_entropy_with_logits
 
 from allennlp.common.util import START_SYMBOL, END_SYMBOL
+from allennlp.nn.beam_search import BeamSearch
 
 class DeleteOnly(Model):
     def __init__(self,
