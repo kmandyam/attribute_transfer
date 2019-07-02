@@ -62,7 +62,7 @@ class DeleteOnlyBeam(Model):
 
         # Decoder output dim needs to be the same as the encoder output dim since we initialize the
         # hidden state of the decoder with the final hidden state of the encoder.
-        self.encoder_output_dim = self.encoder.get_output_dim() + embedding_dim
+        self.encoder_output_dim = self.content_encoder.get_output_dim() + embedding_dim
         self.decoder_output_dim = self.encoder_output_dim
 
         self.decoder_input_dim = embedding_dim
@@ -301,6 +301,4 @@ class DeleteOnlyBeam(Model):
     @overrides
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
         all_metrics: Dict[str, float] = {}
-        if self._bleu and not self.training:
-            all_metrics.update(self._bleu.get_metric(reset=reset))
         return all_metrics
