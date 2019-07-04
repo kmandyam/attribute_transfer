@@ -20,7 +20,6 @@ from allennlp.modules.text_field_embedders import BasicTextFieldEmbedder
 from allennlp.modules.token_embedders import Embedding
 
 from models import DeleteOnly
-from beam_search import DeleteOnlyBeam
 
 from allennlp.modules.seq2seq_encoders import PytorchSeq2SeqWrapper
 
@@ -107,7 +106,13 @@ word_embedder = BasicTextFieldEmbedder({"tokens": token_embedding})
 lstm = PytorchSeq2SeqWrapper(torch.nn.LSTM(EMBEDDING_DIM, HIDDEN_DIM, batch_first=True))
 
 # model = DeleteOnly(word_embedder, attribute_embedder, lstm, vocab)
-model = DeleteOnlyBeam(word_embedder, attribute_embedder, lstm, vocab, 20, 8, 0.5)
+model = DeleteOnly(word_embedder,
+                   attribute_embedder,
+                   lstm,
+                   vocab,
+                   max_decoding_steps=20,
+                   beam_size=8,
+                   scheduled_sampling_ratio=0.5)
 
 if torch.cuda.is_available():
     cuda_device = 1
@@ -116,7 +121,7 @@ else:
     cuda_device = -1
 
 optimizer = optim.Adadelta(model.parameters())
-iterator = BucketIterator(batch_size=2, sorting_keys=[("content", "num_tokens")])
+iterator = BucketIterator(batch_size=256, sorting_keys=[("content", "num_tokens")])
 iterator.index_with(vocab)
 
 # TODO: should probably provide a patience
