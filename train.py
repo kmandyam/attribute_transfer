@@ -19,7 +19,7 @@ from allennlp.data.vocabulary import Vocabulary
 from allennlp.modules.text_field_embedders import BasicTextFieldEmbedder
 from allennlp.modules.token_embedders import Embedding
 
-from models import DeleteOnly
+from classes.models import DeleteOnly
 
 from allennlp.modules.seq2seq_encoders import PytorchSeq2SeqWrapper
 
@@ -28,7 +28,7 @@ from allennlp.training.trainer import Trainer
 
 from allennlp.common.util import START_SYMBOL, END_SYMBOL
 
-from predictor import DeleteOnlyPredictor
+from classes.predictor import DeleteOnlyPredictor
 
 torch.manual_seed(1)
 
