@@ -10,7 +10,6 @@ from allennlp.predictors.predictor import Predictor
 # functions to write
 # TODO: aggregate outputs and log them
 # TODO: calculate NLTK BLEU score
-# TODO: calculate BLEU score the way Li et al. did it
 
 # read data from file and return list of data points
 def read_test_file(test_file_name: str) -> List[Dict[str, str]]:
@@ -42,9 +41,5 @@ def predict_outputs(model: Model,
         }
         outputs.append(evaluation)
     return outputs
-
-
-test_file = os.path.join(os.path.dirname(__file__), '../data/reference.neg.pos')
-print(read_test_file(test_file))
 
 

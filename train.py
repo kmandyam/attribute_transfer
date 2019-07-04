@@ -30,6 +30,8 @@ from allennlp.common.util import START_SYMBOL, END_SYMBOL
 
 from classes.predictor import DeleteOnlyPredictor
 
+from classes.evaluation import read_test_file
+
 torch.manual_seed(1)
 
 class DeleteOnlyDatasetReader(DatasetReader):
@@ -83,11 +85,17 @@ train_pos_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.train.p
 validate_neg_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.dev.neg')
 validate_pos_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.dev.pos')
 
+test_neg2pos_file = os.path.join(os.path.dirname(__file__), 'data/reference.neg.pos')
+test_pos2neg_file = os.path.join(os.path.dirname(__file__), 'data/reference.pos.neg')
+
 negative_train_dataset = reader.read(train_neg_file)
 positive_train_dataset = reader.read(train_pos_file)
 
 negative_validation_datset = reader.read(validate_neg_file)
 positive_validation_datset = reader.read(validate_pos_file)
+
+neg2pos_test = read_test_file(test_neg2pos_file)
+pos2neg_test = read_test_file(test_pos2neg_file)
 
 train_data = negative_train_dataset + positive_train_dataset
 validation_data = negative_validation_datset + positive_validation_datset
@@ -131,7 +139,7 @@ trainer = Trainer(model=model,
                   train_dataset=train_data,
                   validation_dataset=validation_data,
                   patience=10,
-                  num_epochs=1,
+                  num_epochs=0,
                   cuda_device=cuda_device)
 
 trainer.train()
@@ -144,6 +152,7 @@ print([model.vocab.get_token_from_index(i, 'tokens') for i in predictions])
 with open("/tmp/model.th", 'wb') as f:
     torch.save(model.state_dict(), f)
 vocab.save_to_files("/tmp/vocabulary")
+
 
 # And here's how to reload the model.
 # vocab2 = Vocabulary.from_files("/tmp/vocabulary")
