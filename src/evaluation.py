@@ -8,10 +8,6 @@ from allennlp.models import Model
 from allennlp.predictors.predictor import Predictor
 from nltk.translate.bleu_score import corpus_bleu
 
-# functions to write
-# TODO: aggregate outputs and log them
-# TODO: calculate NLTK BLEU score
-
 # read data from file and return list of data points
 def read_test_file(test_file_name: str) -> List[Dict[str, str]]:
     assert os.path.exists(test_file_name)
@@ -44,11 +40,22 @@ def predict_outputs(model: Model,
             "gold": datum["target"]
         }
         outputs.append(evaluation)
+
+    log_predictions(outputs)
     return outputs
 
+# calculate NLTK BLEU score
 def calculate_bleu(predictions: List[Dict[str, str]]):
     references = [[d["gold"]] for d in predictions]
     hypotheses = [d["prediction"] for d in predictions]
 
     corpus_score = corpus_bleu(references, hypotheses, [0.25, 0.25, 0.25, 0.25])
     return corpus_score
+
+# aggregate outputs and log them
+def log_predictions(predictions: List[Dict[str, str]]):
+    f = open("../outputs/predictions.txt", "w")
+    for prediction in predictions:
+        f.write("Input Sentence: " + prediction["input"] + "\n")
+        f.write("\t Predicted Sentence: " + prediction["prediction"] + "\n")
+        f.write("\t Gold Sentence: " + prediction["gold"] + "\n")
