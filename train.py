@@ -139,7 +139,7 @@ trainer = Trainer(model=model,
                   train_dataset=train_data,
                   validation_dataset=validation_data,
                   patience=10,
-                  num_epochs=0,
+                  num_epochs=10,
                   cuda_device=cuda_device)
 
 trainer.train()
