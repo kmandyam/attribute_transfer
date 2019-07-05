@@ -30,7 +30,7 @@ from allennlp.common.util import START_SYMBOL, END_SYMBOL
 
 from classes.predictor import DeleteOnlyPredictor
 
-from classes.evaluation import read_test_file
+from classes.evaluation import read_test_file, predict_outputs
 
 torch.manual_seed(1)
 
@@ -145,10 +145,9 @@ trainer = Trainer(model=model,
 trainer.train()
 
 predictor = DeleteOnlyPredictor(model, reader)
+predicted_outputs = predict_outputs(model, neg2pos_test, predictor, "positive")
 
-predictions = predictor.predict("This bubble tea is amazing", "negative")['predictions']
-print([model.vocab.get_token_from_index(i, 'tokens') for i in predictions])
-
+print("Saving model")
 with open("/tmp/model.th", 'wb') as f:
     torch.save(model.state_dict(), f)
 vocab.save_to_files("/tmp/vocabulary")

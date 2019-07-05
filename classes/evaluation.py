@@ -23,7 +23,7 @@ def read_test_file(test_file_name: str) -> List[Dict[str, str]]:
             test_data.append(test_datum)
     return test_data
 
-# TODO: run model predictor on each line of file
+# run model predictor on each line of file
 def predict_outputs(model: Model,
                     test_data: List[Dict[str, str]],
                     predictor: Predictor,
