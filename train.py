@@ -30,7 +30,7 @@ from allennlp.common.util import START_SYMBOL, END_SYMBOL
 
 from classes.predictor import DeleteOnlyPredictor
 
-from classes.evaluation import read_test_file, predict_outputs
+from classes.evaluation import read_test_file, predict_outputs, calculate_bleu
 
 torch.manual_seed(1)
 
@@ -146,6 +146,9 @@ trainer.train()
 
 predictor = DeleteOnlyPredictor(model, reader)
 predicted_outputs = predict_outputs(model, neg2pos_test, predictor, "positive")
+
+bleu_score = calculate_bleu(predicted_outputs)
+print(bleu_score)
 
 print("Saving model")
 with open("/tmp/model.th", 'wb') as f:

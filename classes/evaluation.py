@@ -6,6 +6,7 @@ from typing import List, Dict
 import os
 from allennlp.models import Model
 from allennlp.predictors.predictor import Predictor
+from nltk.translate.bleu_score import corpus_bleu
 
 # functions to write
 # TODO: aggregate outputs and log them
@@ -42,4 +43,9 @@ def predict_outputs(model: Model,
         outputs.append(evaluation)
     return outputs
 
+def calculate_bleu(predictions: List[Dict[str, str]]):
+    references = [[d["gold"]] for d in predictions]
+    hypotheses = [d["prediction"] for d in predictions]
 
+    corpus_score = corpus_bleu(references, hypotheses, [0.25, 0.25, 0.25, 0.25])
+    return corpus_score
