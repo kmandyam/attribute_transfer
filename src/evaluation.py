@@ -30,7 +30,7 @@ def predict_outputs(model: Model,
     for datum in test_data:
         predictions = predictor.predict(datum["source"], tgt_attr)['predictions']
         final_predictions = predictions
-        if len(predictions) > 1:
+        if any(isinstance(el, list) for el in predictions):
             final_predictions = predictions[0]
         tokens = [model.vocab.get_token_from_index(i, 'tokens') for i in final_predictions]
         predicted_sentence = " ".join(tokens)
