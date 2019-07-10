@@ -54,7 +54,7 @@ def calculate_bleu(predictions: List[Dict[str, str]]):
 
 # aggregate outputs and log them
 def log_predictions(predictions: List[Dict[str, str]]):
-    f = open("../outputs/predictions.txt", "w")
+    f = open("outputs/predictions.txt", "w")
     for prediction in predictions:
         f.write("Input Sentence: " + prediction["input"] + "\n")
         f.write("\t Predicted Sentence: " + prediction["prediction"] + "\n")
