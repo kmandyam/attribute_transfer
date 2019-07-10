@@ -59,3 +59,14 @@ def log_predictions(predictions: List[Dict[str, str]]):
         f.write("Input Sentence: " + prediction["input"] + "\n")
         f.write("\t Predicted Sentence: " + prediction["prediction"] + "\n")
         f.write("\t Gold Sentence: " + prediction["gold"] + "\n")
+
+# read the paper outputs and calculate bleu score
+def paper_evaluation_bleu(paper_prediction_file: str, gold_file: str) -> float:
+    predicted_data = read_test_file(paper_prediction_file)
+    gold_data = read_test_file(gold_file)
+
+    references = [[d["target"]] for d in gold_data]
+    hypotheses = [d["target"] for d in predicted_data]
+
+    corpus_score = corpus_bleu(references, hypotheses, [0.25, 0.25, 0.25, 0.25])
+    return corpus_score

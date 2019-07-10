@@ -109,5 +109,6 @@ sample.py
 sample2.py
 
 outputs/*
-
+paper_outputs.py
+original_paper/*
 notes.txt
