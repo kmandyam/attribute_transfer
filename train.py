@@ -144,16 +144,16 @@ trainer = Trainer(model=model,
 
 trainer.train()
 
+print("Saving model")
+with open("/tmp/model.th", 'wb') as f:
+    torch.save(model.state_dict(), f)
+vocab.save_to_files("/tmp/vocabulary")
+
 predictor = DeleteOnlyPredictor(model, reader)
 predicted_outputs = predict_outputs(model, neg2pos_test, predictor, "positive")
 
 bleu_score = calculate_bleu(predicted_outputs)
 print(bleu_score)
-
-print("Saving model")
-with open("/tmp/model.th", 'wb') as f:
-    torch.save(model.state_dict(), f)
-vocab.save_to_files("/tmp/vocabulary")
 
 
 # And here's how to reload the model.
