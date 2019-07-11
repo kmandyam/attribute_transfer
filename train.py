@@ -21,9 +21,16 @@ from src.predictor import DeleteOnlyPredictor
 from src.evaluation import read_test_file, predict_outputs, calculate_bleu
 
 torch.manual_seed(1)
-parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-reader = DeleteOnlyDatasetReader()
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument("--load-ckpt", type=bool,
+                    default=False,
+                    help="Whether to load model from the checkpoint")
+args = parser.parse_args()
+
+checkpoints_path = "./ckpt"
+if not os.path.exists(checkpoints_path):
+    os.makedirs(checkpoints_path)
 
 train_neg_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.train.neg')
 train_pos_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.train.pos')
@@ -33,6 +40,8 @@ validate_pos_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.dev.
 
 test_neg2pos_file = os.path.join(os.path.dirname(__file__), 'data/reference.neg.pos')
 test_pos2neg_file = os.path.join(os.path.dirname(__file__), 'data/reference.pos.neg')
+
+reader = DeleteOnlyDatasetReader()
 
 negative_train_dataset = reader.read(train_neg_file)
 positive_train_dataset = reader.read(train_pos_file)
@@ -67,6 +76,11 @@ model = DeleteOnly(word_embedder,
                    beam_size=8,
                    scheduled_sampling_ratio=0.5)
 
+if args.load_ckpt and os.path.isfile(checkpoints_path + "/model.th"):
+    print("Loading model from checkpoint")
+    with open(checkpoints_path + "/model.th", 'rb') as f:
+        model.load_state_dict(torch.load(f))
+
 if torch.cuda.is_available():
     cuda_device = 1
     model = model.cuda(cuda_device)
@@ -77,7 +91,6 @@ optimizer = optim.Adadelta(model.parameters())
 iterator = BucketIterator(batch_size=256, sorting_keys=[("content", "num_tokens")])
 iterator.index_with(vocab)
 
-# TODO: should probably provide a patience
 trainer = Trainer(model=model,
                   optimizer=optimizer,
                   iterator=iterator,
@@ -89,10 +102,6 @@ trainer = Trainer(model=model,
 
 trainer.train()
 
-checkpoints_path = "./ckpt"
-if not os.path.exists(checkpoints_path):
-    os.makedirs(checkpoints_path)
-
 print("Saving model")
 with open(checkpoints_path + "/model.th", 'wb') as f:
     torch.save(model.state_dict(), f)
@@ -102,13 +111,4 @@ predictor = DeleteOnlyPredictor(model, reader)
 predicted_outputs = predict_outputs(model, neg2pos_test, predictor, "positive")
 
 bleu_score = calculate_bleu(predicted_outputs)
-print(bleu_score)
-
-
-# And here's how to reload the model.
-# vocab2 = Vocabulary.from_files("/tmp/vocabulary")
-# model2 = DeleteOnly(word_embedder, attribute_embedder, lstm, vocab2)
-# with open("/tmp/model.th", 'rb') as f:
-#     model2.load_state_dict(torch.load(f))
-# if cuda_device > -1:
-#     model2.cuda(cuda_device)
+print("Testing BLEU Score: ", bleu_score)
