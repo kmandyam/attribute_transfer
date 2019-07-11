@@ -113,7 +113,6 @@ word_embedder = BasicTextFieldEmbedder({"tokens": token_embedding})
 
 lstm = PytorchSeq2SeqWrapper(torch.nn.LSTM(EMBEDDING_DIM, HIDDEN_DIM, batch_first=True))
 
-# model = DeleteOnly(word_embedder, attribute_embedder, lstm, vocab)
 model = DeleteOnly(word_embedder,
                    attribute_embedder,
                    lstm,
@@ -139,15 +138,19 @@ trainer = Trainer(model=model,
                   train_dataset=train_data,
                   validation_dataset=validation_data,
                   patience=10,
-                  num_epochs=10,
+                  num_epochs=35,
                   cuda_device=cuda_device)
 
 trainer.train()
 
+checkpoints_path = "./ckpt"
+if not os.path.exists(checkpoints_path):
+    os.makedirs(checkpoints_path)
+
 print("Saving model")
-with open("/tmp/model.th", 'wb') as f:
+with open(checkpoints_path + "/model.th", 'wb') as f:
     torch.save(model.state_dict(), f)
-vocab.save_to_files("/tmp/vocabulary")
+vocab.save_to_files(checkpoints_path + "/vocabulary")
 
 predictor = DeleteOnlyPredictor(model, reader)
 predicted_outputs = predict_outputs(model, neg2pos_test, predictor, "positive")

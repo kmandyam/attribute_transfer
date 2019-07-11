@@ -112,3 +112,4 @@ outputs/*
 paper_outputs.py
 original_paper/*
 notes.txt
+ckpt/*
