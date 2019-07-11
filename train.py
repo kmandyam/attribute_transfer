@@ -4,17 +4,6 @@ import argparse
 import torch
 import torch.optim as optim
 
-from typing import Iterator, List, Dict
-from allennlp.data.dataset_readers import DatasetReader
-
-from allennlp.data.token_indexers import TokenIndexer, SingleIdTokenIndexer
-from allennlp.data.tokenizers import Token
-
-from allennlp.data import Instance
-from allennlp.data.fields import TextField, LabelField
-
-from tools.data import get_content
-
 from allennlp.data.vocabulary import Vocabulary
 
 from allennlp.modules.text_field_embedders import BasicTextFieldEmbedder
@@ -26,8 +15,6 @@ from allennlp.modules.seq2seq_encoders import PytorchSeq2SeqWrapper
 
 from allennlp.data.iterators import BucketIterator
 from allennlp.training.trainer import Trainer
-
-from allennlp.common.util import START_SYMBOL, END_SYMBOL
 
 from src.dataset_readers import DeleteOnlyDatasetReader
 from src.predictor import DeleteOnlyPredictor
