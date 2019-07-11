@@ -9,13 +9,14 @@ def get_content(sentence: List[str], attribute: str) -> List[str]:
     Splits a sentence into its content (and attribute markers)
     :param sentence: A list of strings representing words in the original sentence
     :param attribute: A string representing the attribute
-    :return: A list of strings representing the content
+    :return: A list of strings representing the content and a list of strings representing
+    the attribute markers
     """
     assert attribute in ["positive", "negative"]
 
     attr_vocab = negative_vocab if attribute is "negative" else positive_vocab
-    content, _ = remove_markers(sentence, attr_vocab)
-    return content
+    content, attribute_markers = remove_markers(sentence, attr_vocab)
+    return content, attribute_markers
 
 def remove_markers(sentence: List[str], attr_vocab: Dict[str, float]) -> Tuple[List[str], List[str]]:
     # generate all ngrams for the sentence

@@ -57,6 +57,7 @@ validation_data = negative_validation_datset + positive_validation_datset
 
 vocab = Vocabulary.from_instances(train_data + validation_data)
 
+# hyperparameters
 EMBEDDING_DIM = 128
 HIDDEN_DIM = 512
 
