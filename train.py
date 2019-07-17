@@ -79,7 +79,7 @@ model = DeleteOnly(word_embedder,
 
 # initialize all parameters
 for name, param in model.named_parameters():
-    torch.nn.init.uniform(param, a=-0.1, b=0.1)
+    torch.nn.init.uniform_(param, a=-0.1, b=0.1)
 
 if args.load_ckpt and os.path.isfile(checkpoints_path + "/model.th"):
     print("Loading model from checkpoint")
