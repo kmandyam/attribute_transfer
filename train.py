@@ -77,6 +77,10 @@ model = DeleteOnly(word_embedder,
                    beam_size=10,
                    scheduled_sampling_ratio=0.5)
 
+# initialize all parameters
+for name, param in model.named_parameters():
+    torch.nn.init.uniform(param, a=-0.1, b=0.1)
+
 if args.load_ckpt and os.path.isfile(checkpoints_path + "/model.th"):
     print("Loading model from checkpoint")
     with open(checkpoints_path + "/model.th", 'rb') as f:
