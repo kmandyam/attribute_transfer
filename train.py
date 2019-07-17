@@ -74,7 +74,7 @@ model = DeleteOnly(word_embedder,
                    lstm,
                    vocab,
                    max_decoding_steps=20,
-                   beam_size=8,
+                   beam_size=10,
                    scheduled_sampling_ratio=0.5)
 
 if args.load_ckpt and os.path.isfile(checkpoints_path + "/model.th"):
