@@ -67,7 +67,7 @@ token_embedding = Embedding(num_embeddings=vocab.get_vocab_size('tokens'),
 attribute_embedder = Embedding(num_embeddings=2, embedding_dim=EMBEDDING_DIM)
 word_embedder = BasicTextFieldEmbedder({"tokens": token_embedding})
 
-lstm = PytorchSeq2SeqWrapper(torch.nn.LSTM(EMBEDDING_DIM, HIDDEN_DIM, batch_first=True))
+lstm = PytorchSeq2SeqWrapper(torch.nn.GRU(EMBEDDING_DIM, HIDDEN_DIM, batch_first=True))
 
 model = DeleteOnly(word_embedder,
                    attribute_embedder,
