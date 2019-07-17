@@ -4,7 +4,7 @@ from nltk import ngrams
 
 negative_vocab, positive_vocab = retrieve_attribute_vocabulary()
 
-def get_content(sentence: List[str], attribute: str) -> List[str]:
+def get_content(sentence: List[str], attribute: str) -> Tuple[List[str], List[str]]:
     """
     Splits a sentence into its content (and attribute markers)
     :param sentence: A list of strings representing words in the original sentence
