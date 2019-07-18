@@ -102,18 +102,18 @@ trainer = Trainer(model=model,
                   train_dataset=train_data,
                   validation_dataset=validation_data,
                   patience=10,
-                  num_epochs=35,
+                  num_epochs=100,
                   cuda_device=cuda_device)
 
 trainer.train()
-
-print("Saving model")
-with open(checkpoints_path + "/model.th", 'wb') as f:
-    torch.save(model.state_dict(), f)
-vocab.save_to_files(checkpoints_path + "/vocabulary")
 
 predictor = DeleteOnlyPredictor(model, reader)
 predicted_outputs = predict_outputs(model, neg2pos_test, predictor, "positive")
 
 bleu_score = calculate_bleu(predicted_outputs)
 print("Testing BLEU Score: ", bleu_score)
+
+print("Saving model")
+with open(checkpoints_path + "/model.th", 'wb') as f:
+    torch.save(model.state_dict(), f)
+vocab.save_to_files(checkpoints_path + "/vocabulary")
