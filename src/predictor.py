@@ -33,7 +33,7 @@ class DeleteOnlyPredictor(Predictor):
         attribute = json_dict["attribute"]
         sentence = sentence.strip().split()
 
-        content = get_content(sentence, attribute)
+        content, _ = get_content(sentence, attribute)
 
         # guaranteeing that we don't have empty inputs
         content.insert(0, START_SYMBOL)
