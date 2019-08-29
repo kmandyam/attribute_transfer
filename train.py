@@ -22,6 +22,7 @@ from src.evaluation import read_test_file, predict_outputs, calculate_bleu
 
 torch.manual_seed(1)
 
+# to parse the single argument: whether we load a checkpoint
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--load-ckpt", type=bool,
                     default=False,
@@ -32,6 +33,7 @@ checkpoints_path = "./ckpt"
 if not os.path.exists(checkpoints_path):
     os.makedirs(checkpoints_path)
 
+# load all the data files
 train_neg_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.train.neg')
 train_pos_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.train.pos')
 
@@ -41,6 +43,7 @@ validate_pos_file = os.path.join(os.path.dirname(__file__), 'data/sentiment.dev.
 test_neg2pos_file = os.path.join(os.path.dirname(__file__), 'data/reference.neg.pos')
 test_pos2neg_file = os.path.join(os.path.dirname(__file__), 'data/reference.pos.neg')
 
+# read all the data files
 reader = DeleteOnlyDatasetReader()
 
 negative_train_dataset = reader.read(train_neg_file)
@@ -55,13 +58,13 @@ pos2neg_test = read_test_file(test_pos2neg_file)
 train_data = negative_train_dataset + positive_train_dataset
 validation_data = negative_validation_datset + positive_validation_datset
 
+# read vocabulary
 vocab = Vocabulary.from_instances(train_data + validation_data)
 
 # hyperparameters
 EMBEDDING_DIM = 128
 HIDDEN_DIM = 512
 
-# TODO: consider using pretrained word embeddings
 token_embedding = Embedding(num_embeddings=vocab.get_vocab_size('tokens'),
                             embedding_dim=EMBEDDING_DIM)
 attribute_embedder = Embedding(num_embeddings=2, embedding_dim=EMBEDDING_DIM)
